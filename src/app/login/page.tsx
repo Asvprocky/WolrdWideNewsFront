@@ -69,9 +69,9 @@ export default function LoginPage() {
 
         {/* 구분선 */}
         <div className="flex items-center text-xs text-gray-300 my-1">
-          <div className="flex-grow border-t border-gray-100"></div>
+          <div className="grow border-t border-gray-100"></div>
           <span className="mx-3">or</span>
-          <div className="flex-grow border-t border-gray-100"></div>
+          <div className="grow border-t border-gray-100"></div>
         </div>
 
         {/* 2. 소셜 로그인 버튼 라인 */}

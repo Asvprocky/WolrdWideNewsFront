@@ -28,7 +28,7 @@ export default function WorldMap({ groupedNews, mapRef, onMarkerClick }: Props) 
   return (
     <MapContainer
       center={[38, 30]}
-      zoom={1}
+      zoom={2}
       minZoom={2}
       maxZoom={6}
       className="w-full h-full bg-[#090d16]"
@@ -40,10 +40,7 @@ export default function WorldMap({ groupedNews, mapRef, onMarkerClick }: Props) 
       maxBoundsViscosity={1.0}
       ref={mapRef}
     >
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        noWrap={true}
-      />
+      <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
 
       {Object.entries(groupedNews).map(([country, items]) => (
         <CircleMarker

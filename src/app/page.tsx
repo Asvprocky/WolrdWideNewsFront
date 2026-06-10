@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import RadarHeader from "../components/layout/RadarHeader";
-import CategoryFilter from "../components/layout/CategoryFilter";
-import WorldMap from "../components/map/WorldMap";
-import NewsSidebar from "../components/news/NewsSideBar";
-import { Category, NewsPoint } from "../types/news";
+import RadarHeader from "@/components/layout/RadarHeader";
+import CategoryFilter from "@/components/layout/CategoryFilter";
+import WorldMap from "@/components/map/WorldMap";
+import NewsSidebar from "@/components/news/NewsSideBar";
+import { Category, NewsPoint } from "@/types/news";
 
 export default function MainMapPage() {
   const [newsData, setNewsData] = useState<NewsPoint[]>([]);

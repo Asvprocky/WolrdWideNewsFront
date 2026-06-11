@@ -7,6 +7,7 @@ import CategoryFilter from "@/components/layout/CategoryFilter";
 import WorldMap from "@/components/map/WorldMap";
 import NewsSidebar from "@/components/news/NewsSideBar";
 import { Category, NewsPoint } from "@/types/news";
+import Navbar from "@/components/layout/Navbar";
 
 export default function MainMapPage() {
   const [newsData, setNewsData] = useState<NewsPoint[]>([]);
@@ -168,28 +169,41 @@ export default function MainMapPage() {
   }, [isSidebarOpen]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#090d16] font-sans text-slate-200 flex">
-      <div className="relative flex-1 h-full min-w-0 transition-all duration-500 ease-in-out">
-        <RadarHeader />
-
-        <CategoryFilter selectedCategory={selectedCategory} onSelect={handleCategoryClick} />
-
-        <WorldMap
-          groupedNews={groupedNews}
-          mapRef={mapRef}
-          onMarkerClick={handleCountryMarkerClick}
-        />
+    <div className="relative w-screen h-screen overflow-hidden bg-[#090d16] flex flex-col">
+      {/* 1. 상단 네브바 공간 */}
+      <div className="h-16 shrink-0 z-[1100]">
+        <Navbar>
+          {/* Navbar 내부로 이동! 이제 absolute가 아니어도 됩니다 */}
+          <CategoryFilter selectedCategory={selectedCategory} onSelect={handleCategoryClick} />
+        </Navbar>
       </div>
 
-      <NewsSidebar
-        isOpen={isSidebarOpen}
-        selectedCategory={selectedCategory}
-        newsList={selectedCountryNews}
-        activeNews={activeNewsDetail}
-        onSelectNews={setActiveNewsDetail}
-        onBack={() => setActiveNewsDetail(null)}
-        onClose={closeSidebar}
-      />
+      {/* 2. 메인 컨텐츠 영역 (여기서 flex 사용) */}
+      <div className="flex flex-1 w-full h-full overflow-hidden">
+        {/* 지도 영역: 사이드바가 열리면 flex-1이 줄어들며 자연스럽게 왼쪽으로 밀림 */}
+        <div className="relative flex-1 h-full min-w-0 transition-all duration-500 ease-in-out">
+          <WorldMap
+            groupedNews={groupedNews}
+            mapRef={mapRef}
+            onMarkerClick={handleCountryMarkerClick}
+          />
+        </div>
+
+        {/* 3. 사이드바 영역: flex 구조 안에 배치하여 지도를 밀어냄 */}
+        {isSidebarOpen && (
+          <div className="h-full z-[1050] transition-all duration-500 ease-in-out">
+            <NewsSidebar
+              isOpen={isSidebarOpen}
+              selectedCategory={selectedCategory}
+              newsList={selectedCountryNews}
+              activeNews={activeNewsDetail}
+              onSelectNews={setActiveNewsDetail}
+              onBack={() => setActiveNewsDetail(null)}
+              onClose={closeSidebar}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

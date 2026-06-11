@@ -23,7 +23,7 @@ export default function NewsSidebar({
   if (!isOpen) return null;
 
   return (
-    <div className="h-full bg-[#0d1527] border-l border-slate-900/60 px-6 py-8 flex flex-col w-95 lg:w-112.5">
+    <div className="h-full bg-[#0d1527] border-l border-slate-900/60 px-6 py-8 flex flex-col w-95 lg:w-112.5 z-[1000]">
       <div className="flex justify-between items-center pb-4 border-b border-slate-900">
         <span className="text-sm font-bold">
           {selectedCategory === "ALL" ? "국가별 뉴스" : `카테고리: ${selectedCategory}`}

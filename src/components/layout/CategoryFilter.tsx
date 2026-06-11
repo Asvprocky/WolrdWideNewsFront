@@ -14,7 +14,7 @@ export default function CategoryFilter({ selectedCategory, onSelect }: Props) {
   };
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-1000 flex gap-1.5 p-1 rounded-full bg-[#111827]/80 backdrop-blur-md border border-slate-800/60 shadow-xl">
+    <div className="top-20 left-1/2 -translate-x-1/2 z-1000 flex gap-1.5 p-1 rounded-full bg-[#111827]/80 backdrop-blur-md border border-slate-800/60 shadow-xl">
       {(["ALL", "WAR", "ACCIDENT", "ECONOMY"] as Category[]).map((cat) => (
         <button
           key={cat}

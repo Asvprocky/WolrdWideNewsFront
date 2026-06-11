@@ -57,33 +57,70 @@ export async function requestLogin(email: string, password: string): Promise<str
  * 일반 로그인 유저의 토큰 만료 시점 OR 소셜 로그인 성공 직후 첫 진입 시점에 호출
  */
 export async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore.toString(); // 현재 Next.js가 가진 쿠키들 꺼내기
+  const cookieStore = await cookies();
+  const response = await fetch(`${BACKEND_URL}/jwt/refresh`, {
+    method: "POST",
+    headers: { Cookie: cookieStore.toString() },
+  });
 
-    const response = await fetch(`${BACKEND_URL}/refresh`, {
-      method: "POST",
+  if (!response.ok) return null;
+
+  // 1. 서버가 준 새 리프레시 토큰(Set-Cookie 헤더) 추출
+  const setCookie = response.headers.get("set-cookie");
+  if (setCookie) {
+    // "refreshToken=eyJ...; Path=/; ..." 형태에서 토큰 값만 파싱
+    const match = setCookie.match(/refreshToken=([^;]+)/);
+    if (match) {
+      const newRefreshToken = match[1];
+      // 2. Next.js 쿠키 저장소에 새 토큰을 즉시 저장!
+      cookieStore.set("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+      });
+    }
+  }
+
+  const data: JwtResponseDTO = await response.json();
+  return data.accessToken;
+}
+
+/**
+ * [로그인 상태 확인 및 사용자 정보 조회]
+ * 프론트엔드 Navbar에서 로그인 여부와 닉네임을 표시하기 위해 호출
+ */
+export async function getAuthStatus() {
+  const cookieStore = await cookies();
+
+  // 1. 메모리에 저장된 액세스 토큰이 없으므로, 재발급을 시도합니다.
+  const newAccessToken = await refreshAccessToken();
+
+  console.log("재발급된 토큰 확인:", newAccessToken); // 로그 추가!
+
+  // 2. 재발급 실패 시 (리프레시 토큰 만료 등) -> 로그아웃 처리
+  if (!newAccessToken) {
+    console.log("토큰 재발급 실패");
+    return { isLoggedIn: false, nickname: null };
+  }
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/user/info`, {
+      method: "GET",
       headers: {
-        // 중요: 백엔드의 HttpServletRequest가 쿠키를 읽을 수 있도록
-        // Next.js 서버가 받은 쿠키 보따리를 헤더에 통째로 찔러 넣어줌.
-        Cookie: cookieHeader,
+        Authorization: `Bearer ${newAccessToken}`, // 갱신된 토큰 사용
+        "Content-Type": "application/json", //
+        Cookie: cookieStore.toString(),
       },
-      // 핵심 추가: 크로스 도메인 간 쿠키 공유를 위해 인증 정보 포함 설정
-      credentials: "include",
     });
 
     if (!response.ok) {
-      return null;
+      console.log("응답 상태:", response.status); // 400대 에러인지 확인
+      return { isLoggedIn: false, nickname: null };
     }
 
-    // 백엔드의 JwtResponseDTO(newAccessToken, null) 수신
-    const data: JwtResponseDTO = await response.json();
-
-    // 핵심: 백엔드가 Set-Cookie 헤더로 보낸 새 refreshToken 쿠키는
-    // 브라우저가 알아서 갱신하므로, 우리는 바디로 받은 새 accessToken만 꺼내서 리턴함.
-    return data.accessToken;
+    const userData = await response.json();
+    return { isLoggedIn: true, nickname: userData.nickname };
   } catch (error) {
-    console.error("Token Refresh Error:", error);
-    return null;
+    return { isLoggedIn: false, nickname: null };
   }
 }

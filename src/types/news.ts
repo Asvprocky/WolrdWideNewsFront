@@ -1,4 +1,4 @@
-export type Category = "ALL" | "WAR" | "ACCIDENT" | "ECONOMY";
+export type Category = "ALL" | "WAR" | "ACCIDENT" | "ECONOMY" | "POLITICS";
 
 export interface NewsPoint {
   id: number;
@@ -6,7 +6,7 @@ export interface NewsPoint {
   category: Category;
   categoryLabel: string;
   title: string;
-  content: string;
+  originalContent: string;
   date: string;
   lat: number;
   lng: number;

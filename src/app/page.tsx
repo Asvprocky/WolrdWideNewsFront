@@ -39,6 +39,7 @@ export default function MainMapPage() {
     );
     filtered.forEach((n) => {
       if (!groups[n.country]) groups[n.country] = [];
+
       groups[n.country].push(n);
     });
     return groups;
@@ -51,13 +52,29 @@ export default function MainMapPage() {
 
   const handleCountryMarkerClick = async (name: string) => {
     try {
+      // 1. 요청 전 로깅 (디버깅용)
+      console.log("클릭된 이름:", name);
+
       const res = await fetch(`http://localhost:8080/articles/country/${encodeURIComponent(name)}`);
+
+      // 2. 서버 에러(400 등) 체크
+      if (!res.ok) {
+        console.warn("국가 조회 실패, 언론사 조회로 전환 시도...");
+        // 여기서 언론사 API로 다시 시도하거나 에러를 던짐
+        throw new Error("서버 응답 오류");
+      }
+
       const data = await res.json();
-      const mappedData = data.map((n: any) => ({ ...n, category: mapToCategory(n.category) }));
-      setSelectedCountryNews(mappedData);
-      setActiveNewsDetail(null);
+
+      // 3. 배열인지 확인하고 상태 업데이트
+      if (Array.isArray(data)) {
+        const mappedData = data.map((n: any) => ({ ...n, category: mapToCategory(n.category) }));
+        setSelectedCountryNews(mappedData);
+        setActiveNewsDetail(null);
+      }
     } catch (e) {
-      console.error(e);
+      console.error("데이터 로드 실패:", e);
+      alert("해당 지역/언론사의 뉴스를 불러올 수 없습니다.");
     }
   };
 

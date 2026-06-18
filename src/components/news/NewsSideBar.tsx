@@ -74,6 +74,15 @@ export default function NewsSidebar({
               ← BACK TO LIST
             </button>
 
+            {/* [추가] 상세 보기 시 썸네일 이미지 */}
+            {activeNews.thumbnailUrl && (
+              <img
+                src={activeNews.thumbnailUrl}
+                alt={activeNews.title}
+                className="w-full h-52 object-cover rounded-xl mb-5 border border-slate-800"
+              />
+            )}
+
             <h2 className="text-base font-bold text-slate-100">{activeNews.title}</h2>
 
             <div className="mt-5 text-[13px] text-slate-400 bg-[#090d16]/50 p-5 rounded-xl border border-slate-900 min-h-50 whitespace-pre-line">

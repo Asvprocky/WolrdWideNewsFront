@@ -7,6 +7,7 @@ export interface NewsPoint {
   categoryLabel: string;
   title: string;
   originalContent: string;
+  thumbnailUrl?: string;
   date: string;
   lat: number;
   lng: number;

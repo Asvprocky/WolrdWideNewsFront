@@ -124,3 +124,115 @@ export async function getAuthStatus() {
     return { isLoggedIn: false, nickname: null };
   }
 }
+
+/**
+ * [기사 목록 조회 서버 액션]
+ * 로그인 사용자의 토큰을 포함해서 기사 목록을 가져옴.
+ */
+
+export async function getArticlesAction() {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = await refreshAccessToken();
+
+    const headers: HeadersInit = {
+      Cookie: cookieStore.toString(),
+    };
+
+    // 로그인한 경우에만 Authorization 추가
+    if (accessToken) {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/articles/all`, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("기사 조회 실패");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+/**
+ *  국가별 조회
+ * @param articleId
+ * @returns
+ */
+export async function getCountryArticlesAction(country: string) {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = await refreshAccessToken();
+
+    const headers: HeadersInit = {
+      Cookie: cookieStore.toString(),
+    };
+
+    // 로그인한 경우에만 Authorization 추가
+    if (accessToken) {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/articles/country/${encodeURIComponent(country)}`, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("국가 기사 조회 실패");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+/**
+ * [북마크 토글 서버 액션]
+ * 클라이언트 컴포넌트에서 기사 ID를 주면,
+ * 서버측에서 토큰 재발급을 거쳐 백엔드에 안전하게 API를 요청함.
+ */
+export async function toggleBookmarkAction(
+  articleId: number,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    // 1. 보안을 위해 서버 측 쿠키 저장소 로드
+    const cookieStore = await cookies();
+
+    // 2. 이미 짜여진 로직 활용: 안전하게 액세스 토큰 재발급(또는 획득)
+    const accessToken = await refreshAccessToken();
+    if (!accessToken) {
+      return { success: false, message: "로그인이 만료되었습니다. 다시 로그인해 주세요." };
+    }
+
+    // 3. 백엔드 스프링 서버로 북마크 요청 전달
+    const response = await fetch(`${BACKEND_URL}/bookmark?articleId=${articleId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Cookie: cookieStore.toString(), // 쿠키 세션도 필요한 경우 함께 전달
+      },
+    });
+
+    if (!response.ok) {
+      return { success: false, message: "북마크 처리 중 서버 오류가 발생했습니다." };
+    }
+
+    // 백엔드가 준 성공 메시지 ("북마크 추가 완료" 등) 읽기
+    const message = await response.text();
+    return { success: true, message };
+  } catch (error) {
+    console.error("Bookmark Action Error:", error);
+    return { success: false, message: "네트워크 오류가 발생했습니다." };
+  }
+}

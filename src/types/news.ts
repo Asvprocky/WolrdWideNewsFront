@@ -8,6 +8,7 @@ export interface NewsPoint {
   title: string;
   originalContent: string;
   thumbnailUrl?: string;
+  isBookmarked: boolean;
   date: string;
   lat: number;
   lng: number;

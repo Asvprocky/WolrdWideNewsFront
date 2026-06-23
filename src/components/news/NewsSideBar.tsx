@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import NewsCard from "./NewsCard";
 import { Category, NewsPoint } from "../../types/news";
 import CategoryFilter from "../layout/CategoryFilter";
+import BookmarkButton from "../common/BookmarkButton";
 
 interface Props {
   isOpen: boolean;
@@ -21,6 +22,9 @@ export default function NewsSidebar({
   onBack,
   onClose,
 }: Props) {
+  console.log("activeNews =", activeNews);
+
+  console.log("isBookmarked =", activeNews?.isBookmarked);
   // 사이드바 내부에서만 사용할 로컬 카테고리 상태
   const [sidebarCategory, setSidebarCategory] = useState<Category>("ALL");
 
@@ -83,7 +87,19 @@ export default function NewsSidebar({
               />
             )}
 
-            <h2 className="text-base font-bold text-slate-100">{activeNews.title}</h2>
+            {/* 제목 영역을 flex로 묶고 북마크 버튼 배치 */}
+            <div className="flex items-start justify-between gap-4">
+              <h2 className="text-base font-bold text-slate-100 flex-1">{activeNews.title}</h2>
+
+              {/* 북마크 버튼 추가 */}
+              <div className="shrink-0 mt-0.5">
+                <BookmarkButton
+                  key={activeNews.id}
+                  articleId={activeNews.id}
+                  initialBookmarked={activeNews.isBookmarked}
+                />
+              </div>
+            </div>
 
             <div className="mt-5 text-[13px] text-slate-400 bg-[#090d16]/50 p-5 rounded-xl border border-slate-900 min-h-50 whitespace-pre-line">
               {activeNews.originalContent || "본문 내용이 없습니다."}

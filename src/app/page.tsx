@@ -6,6 +6,7 @@ import CategoryFilter from "@/components/layout/CategoryFilter";
 import WorldMap from "@/components/map/WorldMap";
 import NewsSidebar from "@/components/news/NewsSideBar";
 import { Category, NewsPoint } from "@/types/news";
+import { getArticlesAction, getCountryArticlesAction } from "./actions/auth";
 
 export default function MainMapPage() {
   const [newsData, setNewsData] = useState<NewsPoint[]>([]);
@@ -21,14 +22,18 @@ export default function MainMapPage() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await fetch("http://localhost:8080/articles/all");
-        const data = await res.json();
-        const mappedData = data.map((n: any) => ({ ...n, category: mapToCategory(n.category) }));
+        const data = await getArticlesAction();
+        const mappedData = data.map((n: any) => ({
+          ...n,
+          category: mapToCategory(n.category),
+        }));
+
         setNewsData(mappedData);
       } catch (e) {
         console.error(e);
       }
     };
+
     fetchNews();
   }, []);
 
@@ -55,17 +60,7 @@ export default function MainMapPage() {
       // 1. 요청 전 로깅 (디버깅용)
       console.log("클릭된 이름:", name);
 
-      const res = await fetch(`http://localhost:8080/articles/country/${encodeURIComponent(name)}`);
-
-      // 2. 서버 에러(400 등) 체크
-      if (!res.ok) {
-        console.warn("국가 조회 실패, 언론사 조회로 전환 시도...");
-        // 여기서 언론사 API로 다시 시도하거나 에러를 던짐
-        throw new Error("서버 응답 오류");
-      }
-
-      const data = await res.json();
-
+      const data = await getCountryArticlesAction(name);
       // 3. 배열인지 확인하고 상태 업데이트
       if (Array.isArray(data)) {
         const mappedData = data.map((n: any) => ({ ...n, category: mapToCategory(n.category) }));

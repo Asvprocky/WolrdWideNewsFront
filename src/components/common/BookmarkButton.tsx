@@ -8,12 +8,12 @@ import { useRouter } from "next/navigation";
 interface BookmarkButtonProps {
   articleId: number;
   initialBookmarked?: boolean; // 처음에 북마크된 상태인지 여부
-  onBookmarkChange?: (articleId: number) => void;
 }
 
 export default function BookmarkButton({
   articleId,
   initialBookmarked = false,
+  onToggleSuccess,
 }: BookmarkButtonProps) {
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,7 @@ export default function BookmarkButton({
         console.log(result);
         // 서버 처리가 성공하면 로컬 상태만 반전
         setIsBookmarked((prev) => !prev);
+        onToggleSuccess?.(); // 💡 여기서 부모를 호출해 전체 데이터 갱신
       } else {
         alert(result.message);
       }

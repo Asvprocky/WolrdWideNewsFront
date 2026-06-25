@@ -83,9 +83,10 @@ export default function MainMapPage() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#090d16] flex flex-col">
       <div className="h-16 shrink-0 z-[1100]">
-        <Navbar>
+        <Navbar />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000]">
           <CategoryFilter selectedCategory={selectedCategory} onSelect={handleCategoryClick} />
-        </Navbar>
+        </div>
       </div>
 
       <div className="flex flex-1 w-full h-full overflow-hidden">

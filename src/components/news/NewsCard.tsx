@@ -9,26 +9,54 @@ export default function NewsCard({ news, onClick }: Props) {
   return (
     <div
       onClick={onClick}
-      className="flex gap-4 p-4 bg-[#111827]/60 hover:bg-slate-900 rounded-xl border border-slate-900 cursor-pointer transition-all items-center"
+      className="
+        group
+        flex gap-4
+        p-4
+        rounded-2xl
+        bg-[#111827]
+        border border-slate-800
+        hover:border-slate-700
+        hover:bg-[#151f31]
+        hover:-translate-y-0.5
+        transition-all duration-200
+        cursor-pointer
+      "
     >
-      {/* 1. 썸네일 영역 (flex-shrink-0으로 크기 고정) */}
-      <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-950/80 flex-shrink-0 border border-slate-800/50">
+      {/* 썸네일 */}
+      <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-900">
         {news.thumbnailUrl ? (
-          <img src={news.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+          <img
+            src={news.thumbnailUrl}
+            alt={news.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-600 font-bold tracking-wider">
+          <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">
             NO IMAGE
           </div>
         )}
       </div>
 
-      {/* 2. 텍스트 정보 영역 (min-w-0으로 말줄임표 활성화) */}
-      <div className="flex-1 min-w-0">
-        <span className="text-[10px] font-bold" style={{ color: news.color }}>
-          {news.categoryLabel}
-        </span>
+      {/* 내용 */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* 상단 */}
+        <div className="flex items-center gap-2 mb-2">
+          <span
+            className="px-2 py-1 rounded-md text-[10px] font-bold"
+            style={{
+              backgroundColor: `${news.color}20`,
+              color: news.color,
+            }}
+          >
+            {news.categoryLabel}
+          </span>
 
-        <h3 className="text-[13px] font-bold text-slate-200 mt-1 line-clamp-2 leading-snug">
+          <span className="text-[11px] text-slate-500">{news.country}</span>
+        </div>
+
+        {/* 제목 */}
+        <h3 className="text-[15px] font-semibold text-white leading-snug line-clamp-3">
           {news.title}
         </h3>
       </div>

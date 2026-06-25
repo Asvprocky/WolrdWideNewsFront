@@ -236,3 +236,38 @@ export async function toggleBookmarkAction(
     return { success: false, message: "네트워크 오류가 발생했습니다." };
   }
 }
+
+/**
+ * 북마크 조회기능
+ * @returns
+ */
+export async function getBookmarkedArticlesAction() {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = await refreshAccessToken();
+
+    if (!accessToken) {
+      throw new Error("로그인 필요");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/bookmark/list`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Cookie: cookieStore.toString(),
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Backend Error Response:", text);
+      throw new Error("서버 응답 오류");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Fetch failed:", error);
+    throw new Error("북마크 목록을 가져오는데 실패했습니다.");
+  }
+}

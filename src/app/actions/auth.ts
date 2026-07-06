@@ -271,3 +271,39 @@ export async function getBookmarkedArticlesAction() {
     throw new Error("북마크 목록을 가져오는데 실패했습니다.");
   }
 }
+
+/**
+ *  번역기능
+ * @param articleId
+ * @returns
+ */
+export async function translateArticleAction(articleId: number) {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = await refreshAccessToken();
+
+    const headers: HeadersInit = {
+      Cookie: cookieStore.toString(),
+    };
+
+    // 로그인했을 때만 Authorization 추가
+    if (accessToken) {
+      headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(`${BACKEND_URL}/articles/translate/${articleId}`, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error("번역 실패");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NewsCard from "./NewsCard";
 import { Category, NewsPoint } from "../../types/news";
 import BookmarkButton from "../common/BookmarkButton";
+import { translateArticleAction } from "@/app/actions/auth";
 
 interface Props {
   isOpen: boolean;
@@ -22,6 +23,30 @@ export default function NewsSidebar({
   onBack,
   onClose,
 }: Props) {
+  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setTranslatedContent(null);
+  }, [activeNews]);
+
+  const handleTranslate = async () => {
+    if (!activeNews) return;
+
+    try {
+      setLoading(true);
+
+      const result = await translateArticleAction(activeNews.id);
+
+      if (result) {
+        setTranslatedContent(result.translatedContent);
+      }
+    } catch (e) {
+      console.error("번역 실패", e);
+    } finally {
+      setLoading(false);
+    }
+  };
   const filteredList = useMemo(() => {
     return selectedCategory === "ALL"
       ? newsList
@@ -110,6 +135,13 @@ export default function NewsSidebar({
               <h1 className="text-3xl font-bold text-white leading-tight mb-3">
                 {activeNews.title}
               </h1>
+              <button
+                onClick={handleTranslate}
+                disabled={loading}
+                className="mb-4 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium transition"
+              >
+                {loading ? "번역 중..." : "🌐 번역하기"}
+              </button>
 
               {/* 국가 */}
               <div className="text-sm text-slate-500 mb-6">{activeNews.country}</div>
@@ -117,7 +149,7 @@ export default function NewsSidebar({
               {/* 본문 */}
               <div className="bg-[#111827]/70 border border-slate-800 rounded-2xl p-7">
                 <div className="text-[16px] leading-8 text-slate-300 whitespace-pre-line">
-                  {activeNews.originalContent || "본문 내용이 없습니다."}
+                  {translatedContent ?? activeNews.originalContent ?? "본문 내용이 없습니다."}{" "}
                 </div>
               </div>
 
